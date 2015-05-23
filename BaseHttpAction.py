@@ -1,37 +1,41 @@
+#v0.0.1
 from BaseWorkflow import *
 import UserInfo
 import requests
 
 class BaseHttpAction(BaseWorkflow):
 
-    def __init__(self, villageID = None):
+    villageID = None
+    serverURL = ''
 
-        super(BaseWorkflow, self).__init__()
+    def __init__(self, ID = None):
+
+        super(BaseHttpAction, self).__init__()
         
-        self.villageID = villageID
+        self.villageID = ID
         self.serverURL = 'http://' + UserInfo.serverURL + '/'
 
-    def sendRequest(self, case, url, param, refer = None, nextStep):
+    def sendRequest(self, case, url, param, nextStep,  refer = None):
 
-        if villageID:
+        if self.villageID != None:
             url += '?' if '?' not in url else '&'
-            url += villageID
+            url += self.villageID
 
         headers = self.setHeaders(refer)
         url = self.serverURL + url
         res = None
        
         if case == 'Get':
-            res = requests.get(url, param, headers)
+            res = requests.get(url, params = param, headers = headers)
         else:
             res = requests.post(url, param, headers)
 
         nextStep(res) #接收response 執行下一步
 
         print('url: ' + url)
-        print('Get' if cas == 'Get' else 'Post')
-        print('param:' + param)
-        print('headers:' + headers)
+        #print('Get' if case == 'Get' else 'Post')
+        print('param: ' + 'None' if param is None else param)
+        #print('headers: ' + str(headers))
 
     def setHeaders(self, refer):
         headers = {'content-type':'application/x-www-form-urlencoded', 'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'}
