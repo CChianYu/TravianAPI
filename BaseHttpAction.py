@@ -1,4 +1,4 @@
-#v0.0.1
+#v0.0.2
 from BaseWorkflow import *
 import UserInfo
 import requests
@@ -25,17 +25,21 @@ class BaseHttpAction(BaseWorkflow):
         url = self.serverURL + url
         res = None
        
-        if case == 'Get':
+        print('url: ' + url)
+        #print('Get' if case == 'Get' else 'Post')
+        print('param: ' + ('None' if param is None else str(param)))
+        #print('headers: ' + str(headers))
+        
+        if case == 'GET':
             res = requests.get(url, params = param, headers = headers)
         else:
-            res = requests.post(url, param, headers)
+            res = requests.post(url, data = param, headers = headers)
 
         nextStep(res) #接收response 執行下一步
 
-        print('url: ' + url)
-        #print('Get' if case == 'Get' else 'Post')
-        print('param: ' + 'None' if param is None else param)
-        #print('headers: ' + str(headers))
+        #req = requests.Request(method = case, url = url, params = param, headers = headers)
+        #r = req.prepare()
+        #res = requests.Session().send(r)
 
     def setHeaders(self, refer):
         headers = {'content-type':'application/x-www-form-urlencoded', 'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'}
