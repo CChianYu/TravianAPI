@@ -1,4 +1,4 @@
-#v0.0.2
+#v0.0.3
 from BaseHttpAction import *
 from bs4 import BeautifulSoup
 import UserInfo
@@ -9,9 +9,8 @@ class loginAction(BaseHttpAction):
         super(loginAction, self).__init__()
         self.username = UserInfo.username
         self.password = UserInfo.password
-        print('loginAction init')
 
-    def start(self):
+    def loginStart(self):
 
         print(u'準備登入:' + self.username)
 
@@ -35,34 +34,44 @@ class loginAction(BaseHttpAction):
                 params[tag['name']] = '1280:720'
             else :
                 params[tag['name']] = tag['value']
-        self.postDebug(str(params))
+        self.postDebug(self.loginAction1, str(params))
         self.sendRequest('POST', 'dorf1.php', params, self.loginAction2)
 
     def loginAction2(self, response):
-        soup = BeautifulSoup(response.text)
-        form = soup.find_all('input')
-        list = soup.find_all('li', class_='stockBarButton')
 
-        for tag in form:
-            if u'帳號不存在' in str(tag):
-                print('帳號錯誤')
-                self.end('ERROR')
-                return
-            elif u'密碼錯誤' in str(tag):
-                print('密碼錯誤')
-                self.end('ERROR')
-                return
-            elif 'captcha' in str(tag):
-                print('需要圖形驗證')
-                self.end('ERROR')
-                return
-        if len(list) > 0 :
-            print('登入成功')
-            self.end('SUCCESS')
-        self.postDebug(str(form))
-        self.postDebug(str(list))
+        text = response.text
+        res = self.checkLogin(response)
+        
+    def checkLogin(self, response, whoCall = None, afterCall = None):
+
+        text = response.text
+
+        if u'帳號不存在' in text:
+            print('帳號錯誤')
+            self.end(self.ERROR)
+            return False
+        elif u'密碼錯誤' in text:
+            print('密碼錯誤')
+            self.end(self.ERROR)
+            return False
+        elif 'captcha' in text:
+            print('需要圖形驗證')
+            self.end(self.ERROR)
+            return False
+        elif u'低流量或手機版本' in text:
+            print('重新登入')
+            relogin = loginAction()
+            relogin.run(self, self.buildStart)
+            relogin.loginAction1(response)
+            return False
+
+        if 'stockBar' in text:
+            self.postDebug(self.checkLogin, 'checkLogin Success!!')
+            self.end(self.SUCCESS)
+            return True
 
 if __name__ == '__main__':
     act = loginAction()
-    print(isinstance(act, BaseHttpAction))
-    act.start()
+    #print(isinstance(act, BaseHttpAction))
+    act.loginStart()
+
