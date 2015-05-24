@@ -35,14 +35,14 @@ class loginAction(BaseHttpAction):
             else :
                 params[tag['name']] = tag['value']
         self.postDebug(self.loginAction1, str(params))
-        self.sendRequest('POST', 'dorf1.php', params, self.loginAction2)
+        self.sendRequest('POST', 'dorf1.php', params, self.checkLogin)
 
     def loginAction2(self, response):
 
         text = response.text
         res = self.checkLogin(response)
         
-    def checkLogin(self, response, whoCall = None, afterCall = None):
+    def checkLogin(self, response, callback = None):
 
         text = response.text
 
@@ -60,13 +60,13 @@ class loginAction(BaseHttpAction):
             return False
         elif u'低流量或手機版本' in text:
             print('重新登入')
-            relogin = loginAction()
-            relogin.run(self, self.buildStart)
-            relogin.loginAction1(response)
+            #relogin = loginAction()
+            self.run(self, callback)
+            self.loginAction1(response)
             return False
 
         if 'stockBar' in text:
-            self.postDebug(self.checkLogin, 'checkLogin Success!!')
+            print('Login Success!!')
             self.end(self.SUCCESS)
             return True
 

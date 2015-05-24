@@ -5,7 +5,7 @@ from BaseWorkflow import *
 from bs4 import BeautifulSoup
 import requests
 
-class BuildAction(BaseHttpAction):
+class BuildAction(loginAction):
 
     def __init__(self, villageID, buildID):
         
@@ -23,20 +23,16 @@ class BuildAction(BaseHttpAction):
     def buildAction1(self, response):
 
         soup = BeautifulSoup(response.text)
-        list = soup.find_all('button', class_='green build')
-        self.postDebug(self.buildAction1, str(list))
         if u'低流量或手機版本' in response.text:
             print('At login page')
-        self.pause()
-        
-        check = loginAction.checkLogin(self, response)
-        if check == False:
-            #BuildAction.start(self)
-            self.end(self.TRY_AGAIN)
-            return
+
+        list = soup.find_all('button', class_='green build')
+        if list == [] :
+            if loginAction.checkLogin(self, response, self.buildStart) == False:
+                self.end(self.TRY_AGAIN)
+                return
 
         soup = BeautifulSoup(response.text)
-        list = soup.find_all('button', class_='green build')
 
         self.postDebug(self.buildAction1, str(list))
 
