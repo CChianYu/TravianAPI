@@ -41,11 +41,14 @@ class RequestsHandler(BaseHttpAction.BaseHttpAction):
         if argv != ():   # if argv has something, the work was error
             response = argv[0] # assume argv[0] is a response
             check = login.loginAction()
+            check.setSession(self.session)
             check.checkLogin(response)
             if check.status == self.TRY_AGAIN:
-                self.queue[self.qnow].result = self.TRY_AGAIN
+                self.queue[self.qnow].status = self.TRY_AGAIN
+                self.queue[self.qnow].result = argv
             else:
-                self.queue[self.qnow].result = self.ERROR
+                self.queue[self.qnow].status = self.ERROR
+                self.queue[self.qnow].result = argv
         else :
             self.queue[self.qnow].result = self.SUCCESS
 
@@ -71,6 +74,7 @@ class work(BaseWorkflow.BaseWorkflow):
         self.obj = obj
         self.function = function
         self.arguments = arguments
+        self.status = None
         self.result = None
 
     def apply(self, session):
@@ -80,7 +84,8 @@ class work(BaseWorkflow.BaseWorkflow):
         arg  = self.arguments
 
         obj.setSession(session)
-        self.postDebug(self.apply, str(session)+str(obj.session))
+        #self.postDebug(self.apply, str(session)+str(obj.session))
+        #self.postDebug(self.apply, str(session.cookies))
 
         obj.run(self.whoCall, self.callback)
         func(*arg)
@@ -88,10 +93,13 @@ class work(BaseWorkflow.BaseWorkflow):
 if __name__ == '__main__':
 
     god = RequestsHandler()
-    build = build.BuildAction(8999, 4)
+    build = build.BuildAction(8999, 3)
     checkID = god.standby(build, build, build.buildStart)
-    print(god.queue[checkID].result)
-    if god.queue[checkID].result == god.TRY_AGAIN:
+    print(god.queue[checkID].status)
+
+    #god.postDebug(god, 'handler'+str(god.session.cookies))
+    if god.queue[checkID].status == god.TRY_AGAIN:
         checkID = god.standby(build, build, build.buildStart)
         #god.pause()
-    print(god.queue[checkID].result)
+    print(god.queue[checkID].status)
+    print(god.queue[checkID].result[0].text)

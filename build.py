@@ -25,14 +25,13 @@ class BuildAction(loginAction):
 
         soup = BeautifulSoup(response.text)
         if u'低流量或手機版本' in response.text:
-            print('At login page')
+            print('At login page')##
 
         list = soup.find_all('button', class_='green build')
         if list == [] :
             self.end(self.TRY_AGAIN, response)
             return
 
-        self.postDebug(self.buildAction1, str(list))
         list = str(list)
         i = list.find('c=')
         j = list.find('; re')
@@ -40,7 +39,6 @@ class BuildAction(loginAction):
         params = {}
         params['c'] = list[i+2:j-1]
         params['a'] = str(self.buildID)
-        print(str(params))
 
         self.sendRequest('GET', 'dorf1.php', params, self.buildAction2)
         

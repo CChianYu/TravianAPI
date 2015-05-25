@@ -34,7 +34,7 @@ class loginAction(BaseHttpAction):
                 params[tag['name']] = '1280:720'
             else :
                 params[tag['name']] = tag['value']
-        self.postDebug(self.loginAction1, str(params))
+
         self.sendRequest('POST', 'dorf1.php', params, self.checkLogin)
 
     def loginAction2(self, response):
