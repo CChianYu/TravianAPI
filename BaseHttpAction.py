@@ -1,5 +1,5 @@
 #v0.0.3
-from BaseWorkflow import *
+from BaseWorkflow import BaseWorkflow 
 import UserInfo
 import requests
 
@@ -29,7 +29,7 @@ class BaseHttpAction(BaseWorkflow):
        
         print('url: ' + url)
         #print('Get' if case == 'Get' else 'Post')
-        #self.postDebug('param: ' + ('None' if param is None else str(param)))
+        self.postDebug(self.sendRequest, 'param: ' + ('None' if param is None else str(param)))
         #print('headers: ' + str(headers))
         
         if case == 'GET':
@@ -44,3 +44,7 @@ class BaseHttpAction(BaseWorkflow):
         if refer:
             headers['Referer'] = refer
         return headers
+
+    def setSession(self, session):
+
+        self.session = session

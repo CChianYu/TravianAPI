@@ -1,5 +1,5 @@
 #v0.0.3
-from BaseHttpAction import *
+from BaseHttpAction import BaseHttpAction
 from bs4 import BeautifulSoup
 import UserInfo
 
@@ -60,15 +60,18 @@ class loginAction(BaseHttpAction):
             return False
         elif u'低流量或手機版本' in text:
             print('重新登入')
-            #relogin = loginAction()
-            self.run(self, callback)
             self.loginAction1(response)
-            return False
+            self.end(self.TRY_AGAIN)
+            return True
 
         if 'stockBar' in text:
             print('Login Success!!')
             self.end(self.SUCCESS)
             return True
+        else:
+            print('未知錯誤')
+            self.end(self.ERROR, response)
+            return False
 
 if __name__ == '__main__':
     act = loginAction()
