@@ -1,5 +1,5 @@
 #v0.0.3
-from BaseWorkflow import *
+from BaseWorkflow import BaseWorkflow 
 import UserInfo
 import requests
 
@@ -28,14 +28,14 @@ class BaseHttpAction(BaseWorkflow):
         res = None
        
         print('url: ' + url)
-        #print('Get' if case == 'Get' else 'Post')
-        #self.postDebug('param: ' + ('None' if param is None else str(param)))
-        #print('headers: ' + str(headers))
+        self.postDebug(self.sendRequest, 'param: ' + ('None' if param is None else str(param)))
+        self.postDebug(self.sendRequest, 'before send'+str(self.session.cookies))
         
         if case == 'GET':
             res = self.session.get(url, params = param, headers = headers)
         else:
             res = self.session.post(url, data = param, headers = headers)
+        self.postDebug(self.sendRequest, 'after send'+str(self.session.cookies))
 
         nextStep(res) #接收response 執行下一步
 
@@ -44,3 +44,7 @@ class BaseHttpAction(BaseWorkflow):
         if refer:
             headers['Referer'] = refer
         return headers
+
+    def setSession(self, session):
+
+        self.session = session
