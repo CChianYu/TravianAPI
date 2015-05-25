@@ -29,13 +29,21 @@ class BaseHttpAction(BaseWorkflow):
        
         print('url: ' + url)
         self.postDebug(self.sendRequest, 'param: ' + ('None' if param is None else str(param)))
+<<<<<<< HEAD
         #self.postDebug(self.sendRequest, 'before send'+str(self.session.cookies))
+=======
+        #self.postDebug(self.sendRequest, 'before send'+str(self.session.cookies))
+>>>>>>> Sessionworker
         
         if case == 'GET':
             res = self.session.get(url, params = param, headers = headers)
         else:
             res = self.session.post(url, data = param, headers = headers)
+<<<<<<< HEAD
         #self.postDebug(self.sendRequest, 'after send'+str(self.session.cookies))
+=======
+        #self.postDebug(self.sendRequest, 'after send'+str(self.session.cookies))
+>>>>>>> Sessionworker
 
         nextStep(res) #接收response 執行下一步
 
