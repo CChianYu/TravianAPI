@@ -57,6 +57,8 @@ class RequestsHandler(BaseHttpAction.BaseHttpAction):
 
         if self.qnow < len(self.queue):
             self.go()
+        else:
+            self.canGo = True
 
 class work(BaseWorkflow.BaseWorkflow):
 
@@ -78,9 +80,8 @@ class work(BaseWorkflow.BaseWorkflow):
         arg  = self.arguments
 
         obj.setSession(session)
+        self.postDebug(self.apply, str(session)+str(obj.session))
 
-        self.postDebug(self.apply, str(arg))
-        print(self.arguments, arg)
         obj.run(self.whoCall, self.callback)
         func(*arg)
         
@@ -88,4 +89,9 @@ if __name__ == '__main__':
 
     god = RequestsHandler()
     build = build.BuildAction(8999, 4)
-    god.standby(build, build, build.buildStart)
+    checkID = god.standby(build, build, build.buildStart)
+    print(god.queue[checkID].result)
+    if god.queue[checkID].result == god.TRY_AGAIN:
+        checkID = god.standby(build, build, build.buildStart)
+        #god.pause()
+    print(god.queue[checkID].result)

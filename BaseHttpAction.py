@@ -28,9 +28,8 @@ class BaseHttpAction(BaseWorkflow):
         res = None
        
         print('url: ' + url)
-        #print('Get' if case == 'Get' else 'Post')
         self.postDebug(self.sendRequest, 'param: ' + ('None' if param is None else str(param)))
-        #print('headers: ' + str(headers))
+        self.postDebug(self.sendRequest, str(self.session.cookies))
         
         if case == 'GET':
             res = self.session.get(url, params = param, headers = headers)
