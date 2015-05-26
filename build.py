@@ -1,11 +1,9 @@
 #v0.0.1
-from login import *
-from BaseHttpAction import *
-from BaseWorkflow import *
+import BaseHttpAction
 from bs4 import BeautifulSoup
 import requests
 
-class BuildAction(loginAction):
+class BuildAction(BaseHttpAction.BaseHttpAction):
 
     def __init__(self, villageID, buildID):
         

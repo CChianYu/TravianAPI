@@ -19,8 +19,16 @@ class BaseWorkflow:
         self.whoCall = whoCall
         self.afterDone = afterDone
 
-    def end(self, status, *argv):
-        self.status = status
+    def end(self, *argv):
+
+        if len(argv) > 1:                #assume when argv's length = 1, nothing wrong
+            self.status = argv[0]
+        else:
+            if type(argv[0]) == type(str):
+                selg.status = argv[0]
+            else :
+                self.status = self.SUCCESS
+
         if self.afterDone is not None:
             self.afterDone(*argv)
 
