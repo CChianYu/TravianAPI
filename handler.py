@@ -15,6 +15,10 @@ class RequestsHandler(BaseHttpAction.BaseHttpAction):
         self.qnow = 0
         self.canGo = True
 
+        log = login.loginAction()
+        log.setSession(self.session)
+        log.loginStart()
+
     def standby(self, whoCall, obj, function, *argv):
 
         nex = work(whoCall, self.done, obj, function, *argv)
@@ -39,19 +43,23 @@ class RequestsHandler(BaseHttpAction.BaseHttpAction):
         
         if response != None:   
 
-            check = login.loginAction()
-            check.setSession(self.session)
-            check.checkLogin(response)
-            #self.postDebug(self.done, check.status)
-            if check.status == self.TRY_AGAIN:
-                self.queue[self.qnow].status = self.TRY_AGAIN
-                self.queue[self.qnow].result = response
-            else:
-                self.queue[self.qnow].status = self.ERROR
+            if u'低流量或手機版本' in response.text:
+                #check = login.loginAction()
+                #check.setSession(self.session)
+                #check.checkLogin(response)
+                #self.postDebug(self.done, check.status)
+
+                if check.status == self.TRY_AGAIN:
+                    self.queue[self.qnow].status = self.TRY_AGAIN
+                    self.queue[self.qnow].result = response
+                else:
+                    self.queue[self.qnow].status = self.ERROR
+                    self.queue[self.qnow].result = response
+            else :
+                self.queue[self.qnow].status = self.SUCCESS
                 self.queue[self.qnow].result = response
         else :
             self.queue[self.qnow].status = self.SUCCESS
-            self.queue[self.qnow].result = response
 
         self.nextwork()
 
