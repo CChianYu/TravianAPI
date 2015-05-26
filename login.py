@@ -62,6 +62,8 @@ class loginAction(BaseHttpAction):
             print('重新登入')
             self.loginAction1(response)
             self.end(self.TRY_AGAIN)
+            print('check stack () 重新登入')
+
             return True
 
         if 'stockBar' in text:

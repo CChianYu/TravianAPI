@@ -35,24 +35,23 @@ class RequestsHandler(BaseHttpAction.BaseHttpAction):
 
         now.apply(self.session)
 
-    def done(self, *argv):
+    def done(self, response):
         
-        self.postDebug(self.done, str(argv))
-        if len(argv) > 1:   # if argv more then 1, the work was error
-            response = argv[1] # assume argv[1] is a response
+        if response != None:   
+
             check = login.loginAction()
             check.setSession(self.session)
             check.checkLogin(response)
-            self.postDebug(self.done, check.status)
-            if check.status == self.SUCCESS or argv[1] == self.TRY_AGAIN:
+            #self.postDebug(self.done, check.status)
+            if check.status == self.TRY_AGAIN:
                 self.queue[self.qnow].status = self.TRY_AGAIN
-                self.queue[self.qnow].result = argv
+                self.queue[self.qnow].result = response
             else:
                 self.queue[self.qnow].status = self.ERROR
-                self.queue[self.qnow].result = argv
+                self.queue[self.qnow].result = response
         else :
             self.queue[self.qnow].status = self.SUCCESS
-            self.queue[self.qnow].result = argv
+            self.queue[self.qnow].result = response
 
         self.nextwork()
 
@@ -95,7 +94,7 @@ class work(BaseWorkflow.BaseWorkflow):
 if __name__ == '__main__':
 
     god = RequestsHandler()
-    build = build.BuildAction(8999, 5)
+    build = build.BuildAction(8999, 6)
     checkID = god.standby(build, build, build.buildStart)
     print(god.queue[checkID].status)
 

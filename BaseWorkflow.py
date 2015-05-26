@@ -21,16 +21,19 @@ class BaseWorkflow:
 
     def end(self, *argv):
 
-        if len(argv) > 1:                #assume when argv's length = 1, nothing wrong
+        response = None
+        if len(argv) > 1:    # 3 kinds of situation: argv=(['', response], [''], ['response'])
             self.status = argv[0]
+            response    = argv[1]
         else:
-            if type(argv[0]) == type(str):
-                selg.status = argv[0]
+            if type(argv[0]) == type(str()):
+                self.status = argv[0]
             else :
                 self.status = self.SUCCESS
+                response    = argv[0]
 
         if self.afterDone is not None:
-            self.afterDone(*argv)
+            self.afterDone(response)
 
     def postDebug(self, whocall, msg):
         if self.DEBUG:
