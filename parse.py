@@ -1,5 +1,6 @@
 def getStrBetween(s, fron, back):
 
+    s = s.strip()
     if fron != '':
         i = s.find(fron)
         s = s[i+len(fron):]

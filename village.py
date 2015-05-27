@@ -12,7 +12,7 @@ class Village(BaseHttpAction.BaseHttpAction): # Village might inherent class Acc
         super(Village, self).__init__()
 
         self.villageID = villageID
-        self.buildings = []
+        self.buildings = {}
 
         self.RH = handler.RequestsHandler()
 
@@ -22,7 +22,7 @@ class Village(BaseHttpAction.BaseHttpAction): # Village might inherent class Acc
 
     def updateBuildings(self):
 
-        for buildID in range(38, 41):
+        for buildID in range(18, 20):
 
             getpage = BaseHttpAction.BaseHttpAction()
             params = {'id':str(buildID)}
@@ -38,12 +38,20 @@ class Village(BaseHttpAction.BaseHttpAction): # Village might inherent class Acc
             #print(text)
 
             if u'建造新的建築物' in text:
+                self.postDebug(self.updateBuildings, str(buildID)+' is empty.')
+                self.buildings[buildID] = {'name':'empty', 'canBuild':[]}
+                
                 for i in range(1, 4):
+
+                    if u'即將可' in text:
+                        text = parse.getStrBetween(text, '', u'即將可')
                     
                     while 'Wrapper' in text:
                         name = parse.getStrBetween(text, 'h2>', '</h2')
                         text = parse.getStrBetween(text, 'Wrapper', '')
-                        print(name)
+                        #print(name)
+                        if name not in self.buildings[buildID]['canBuild']:
+                            self.buildings[buildID]['canBuild'].append(name)
 
                     if i == 3 :
                         break
@@ -52,15 +60,35 @@ class Village(BaseHttpAction.BaseHttpAction): # Village might inherent class Acc
                     qID = self.RH.standby(self.updateBuildings, getpage, getpage.sendRequest, 'GET', 'build.php', params, getpage.end)
                     
                     text = self.RH.queue[qID].result.text
-                    text = parse.getStrBetween(text, 'nHeader">', '/span')
-
+                    text = parse.getStrBetween(text, 'nHeader">', 'contentFooter')
+                
             else :
                 name = parse.getStrBetween(text, '', '<span')
                 level = parse.getStrBetween(text,  u'等級', '</')
-                print(name, level)
+                
+                self.buildings[buildID] = {'name':name, 'level':level}
+
+                self.postDebug(self.updateBuildings, name + level)
+    
+    def runBuildAction(self, buildID, buildName = None):
+
+        b = build.BuildAction(self.villageID, buildID, buildName)
+        b.setSession(self.RH.session)
+        b.buildStart()
             
 
 if __name__ == '__main__':
 
     vil = Village(8999)
+    #vil.runBuildAction(8)
+    vil.runBuildAction(19, '倉庫')
+    '''
     vil.updateBuildings()
+    for buildID in vil.buildings:
+        if vil.buildings[buildID]['name'] != 'empty':
+            print(buildID, vil.buildings[buildID]['name'], vil.buildings[buildID]['level'])
+        else :
+            print(buildID ,  ' can build:')
+            for canbuild in vil.buildings[buildID]['canBuild']:
+                print(canbuild)
+    '''

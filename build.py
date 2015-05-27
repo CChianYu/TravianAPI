@@ -2,14 +2,16 @@
 import BaseHttpAction
 from bs4 import BeautifulSoup
 import requests
+import parse
 
 class BuildAction(BaseHttpAction.BaseHttpAction):
 
-    def __init__(self, villageID, buildID):
+    def __init__(self, villageID, buildID, buildName = None):
         
         super(BuildAction, self).__init__()
         self.villageID = villageID
         self.buildID   = buildID
+        self.buildName = buildName
         params = {}
 
     def buildStart(self):
@@ -21,24 +23,48 @@ class BuildAction(BaseHttpAction.BaseHttpAction):
 
     def buildAction1(self, response):
 
-        soup = BeautifulSoup(response.text)
-        if u'低流量或手機版本' in response.text:
+        list = response.text
+        if u'低流量或手機版本' in list:
             print('At login page')##
 
-        list = soup.find_all('button', class_='green build')
-        if list == [] :
+        if 'green build' in list :
             self.end(self.TRY_AGAIN, response)
             return
 
-        list = str(list)
-        i = list.find('c=')
-        j = list.find('; re')
-
         params = {}
-        params['c'] = list[i+2:j-1]
-        params['a'] = str(self.buildID)
+        url = ''
 
-        self.sendRequest('GET', 'dorf1.php', params, self.buildAction2)
+        if u'新的建築' in list:
+            list = parse.getStrBetween(list, u'新的建築', u'即將可')
+            list = parse.getStrBetween(list, self.buildName, 'buildingWrapper')
+            list = parse.getStrBetween(list, 'dorf2.php?', '\">')
+
+            self.postDebug(self.buildAction1, list)
+
+            a = parse.getStrBetween(list, 'a=', '&')
+            c = parse.getStrBetween(list, 'c=', '\'; re')
+
+            params['a'] = a
+            params['c'] = c
+            params['id'] = str(self.buildID)
+
+            url = 'dorf2.php'
+        else:
+            if self.buildID <= 18:
+                url = 'dorf1.php'
+            else:
+                url = 'dorf2.php'
+
+            list = parse.getStrBetween(list, 'green build', '">')
+            a = parse.getStrBetween(list, 'a=', '&')
+            c = parse.getStrBetween(list, 'c=', '\'; re')
+
+            params['c'] = c 
+            params['a'] = a
+
+            self.postDebug(self.buildAction1, list)
+
+        self.sendRequest('GET', url, params, self.buildAction2)
         
     def buildAction2(self, response):
 
@@ -53,4 +79,6 @@ class BuildAction(BaseHttpAction.BaseHttpAction):
 
 if __name__ == '__main__':
     b = BuildAction(8999, 4)
+    b.buildStart()
+    b = BuildAction(8999, 19, '倉庫')
     b.buildStart()
